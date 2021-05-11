@@ -92,10 +92,10 @@ server.post("/signin", (req, res) => {
             })
           );
       } else {
-          res.json({ status: "not found" });
+        res.json({ status: "not found" });
       }
     })
-    .catch(err=>res.json({status: err}));
+    .catch((err) => res.json({ status: err }));
 });
 
 server.get("/profile/:id", (req, res) => {
@@ -125,6 +125,6 @@ server.put("/image", (req, res) => {
     .then((data) => res.json(data[0]));
 });
 
-server.listen(3001, () => {
-  console.log("The server is running at port 3001");
+server.listen(process.env.PORT || 3001, () => {
+  console.log(`The server is running at port ${process.env.PORT}`);
 });
