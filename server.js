@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const knex = require("knex");
 const bcrypt = require("bcrypt-nodejs");
@@ -13,7 +12,7 @@ const database = knex({
 });
 const server = express();
 
-server.use(bodyParser.json());
+server.use(express.json());
 server.use(cors());
 
 server.get("/", (req, res) => {
@@ -83,7 +82,7 @@ server.post("/signin", (req, res) => {
         res.json({ status: "not found" });
       }
     })
-    .catch((err) => res.json({ status: err }));
+    .catch((err) => res.json({ status: "not found" }));
 });
 
 server.get("/profile/:id", (req, res) => {
@@ -98,7 +97,7 @@ server.get("/profile/:id", (req, res) => {
       if (data.length) {
         res.json(data[0]);
       } else {
-        res.status(400).json("notFound");
+        res.status(400).json("not Found");
         throw Error;
       }
     });
