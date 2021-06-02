@@ -17,20 +17,10 @@ const server = express();
 
 server.use(bodyParser.json());
 server.use(cors());
-// const database = [
-//     {
-//         id: 1,
-//         name: "suhrid",
-//         email: "suhrid@gmail.com",
-//         password: "1234",
-//         points: 0,
-//         joined: new Date()
-//     }
-// ]
 
-// server.get('/', (req, res) => {
-//     res.send(database);
-// })
+server.get("/", (req, res) => {
+  res.send("Hello World");
+});
 
 server.post("/register", (req, res) => {
   const { email, name, password } = req.body;
