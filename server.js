@@ -1,118 +1,56 @@
-const express = require("express");
-const cors = require("cors");
-const knex = require("knex");
-const bcrypt = require("bcrypt-nodejs");
-
-const database = knex({
-  client: "pg",
+const express = require('express');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const cors = require('cors');
+const signin = require('./controllers/signin.js');
+const register = require('./controllers/register.js');
+const profile = require('./controllers/profile.js');
+const image = require('./controllers/image.js');
+const { check, validationResult } = require('express-validator/check');
+const knex = require('knex')({
+  client: 'pg',
   connection: {
     connectionString: process.env.DATABASE_URL,
-    ssl: true,
-  },
-});
-const server = express();
-
-server.use(express.json());
-server.use(cors());
-
-server.get("/", (req, res) => {
-  res.send("Hello World");
+    ssl: true
+  }
 });
 
-server.post("/register", (req, res) => {
-  const { email, name, password } = req.body;
-  // const hash = bcrypt.hashSync(password);
+const app = express();
+// middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(cors());
 
-  // database
-  //   .transaction((trx) => {
-  //     trx
-  //       .insert({
-  //         hash: hash,
-  //         email: email,
-  //       })
-  //       .into("login")
-  //       .returning("email")
-  //       .then((loginMail) => {
-  //         return trx("users")
-  //           .returning("*")
-  //           .insert({
-  //             email: loginMail[0],
-  //             name: name,
-  //             joined: new Date(),
-  //           })
-  //           .then((data) =>
-  //             res.json({
-  //               status: "success",
-  //               name: data[0].name,
-  //               points: data[0].entries,
-  //             })
-  //           );
-  //       })
-  //       .then(trx.commit)
-  //       .catch(trx.rollback);
-  //   })
-  //   .catch((err) =>
-  //     res.json({
-  //       status: "error",
-  //     })
-  //   );
-  res.send(email, name, password);
+// just a greet message
+app.get('/', (req, res) => {
+  res.json('It is working!');
+});
+// signin endpoint
+app.post('/signin', [
+  check('email').isEmail().normalizeEmail(),
+  check('password').isLength({min:3}).escape()
+],(req, res) => {
+	signin.handleSignIn(req, res, knex, bcrypt, validationResult);
+});
+// register endpoint
+app.post('/register', [
+  check('name').isLength({min:2}).trim().escape(),
+  check('email').isEmail().normalizeEmail(),
+  check('password').isLength({min:3}).escape()
+], (req, res) => {
+	register.handleRegister(req, res, knex, bcrypt, validationResult);
+});
+// get user profile
+app.get('/profile/:id', (req, res) => {
+	profile.handleProfile(req, res, knex);
+});
+// api request
+app.post('/apiRequest', (req, res) => {
+  image.apiRequest(req, res);
+})
+// update entries
+app.put('/image', (req, res) => {
+	image.handleImage(req, res, knex);
 });
 
-server.post("/signin", (req, res) => {
-  var { email, password } = req.body;
-  database
-    .select("email", "hash")
-    .from("login")
-    .where("email", "=", email)
-    .then((data) => {
-      const isValid = bcrypt.compareSync(password, data[0].hash);
-      if (isValid) {
-        return database
-          .select("*")
-          .from("users")
-          .where("email", "=", email)
-          .then((data) =>
-            res.json({
-              status: "success",
-              name: data[0].name,
-              points: data[0].entries,
-            })
-          );
-      } else {
-        res.json({ status: "not found" });
-      }
-    })
-    .catch((err) => res.json({ status: "not found" }));
-});
-
-server.get("/profile/:id", (req, res) => {
-  var { id } = req.params;
-  database
-    .select("*")
-    .from("users")
-    .where({
-      id: id,
-    })
-    .then((data) => {
-      if (data.length) {
-        res.json(data[0]);
-      } else {
-        res.status(400).json("not Found");
-        throw Error;
-      }
-    });
-});
-
-server.put("/image", (req, res) => {
-  var { name } = req.body;
-  database("users")
-    .where("name", "=", name)
-    .increment("entries", 1)
-    .returning("entries")
-    .then((data) => res.json(data[0]));
-});
-
-server.listen(process.env.PORT || 3001, () => {
-  console.log(`The server is running at port ${process.env.PORT}`);
-});
+app.listen(process.env.PORT || 3000);
