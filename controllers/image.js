@@ -1,11 +1,11 @@
 const Clarifai = require("clarifai");
 const app = new Clarifai.App({
-  apiKey: "b5624aafd619411f8accfc04e257cd73",
+  apiKey: "f462cceec4324ad69e878059a3d9f8b0",
 });
 
 const apiRequest = (req, res) => {
   app.models
-    .predict("f462cceec4324ad69e878059a3d9f8b0", req.body.imageUrl)
+    .predict("a403429f2ddf4b49b307e318f00e528b", req.body.imageUrl)
     .then(
       (data) => res.json(data),
       // the introduced link is not a proper one
