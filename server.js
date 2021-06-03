@@ -1,18 +1,18 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const cors = require('cors');
-const signin = require('./controllers/signin.js');
-const register = require('./controllers/register.js');
-const profile = require('./controllers/profile.js');
-const image = require('./controllers/image.js');
-const { check, validationResult } = require('express-validator/check');
-const knex = require('knex')({
-  client: 'pg',
+const express = require("express");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
+const cors = require("cors");
+const signin = require("./controllers/signin.js");
+const register = require("./controllers/register.js");
+const profile = require("./controllers/profile.js");
+const image = require("./controllers/image.js");
+const { check, validationResult } = require("express-validator/check");
+const knex = require("knex")({
+  client: "pg",
   connection: {
     connectionString: process.env.DATABASE_URL,
-    ssl: true
-  }
+    ssl: true,
+  },
 });
 
 const app = express();
@@ -22,35 +22,43 @@ app.use(express.json());
 app.use(cors());
 
 // just a greet message
-app.get('/', (req, res) => {
-  res.json('It is working!');
+app.get("/", (req, res) => {
+  res.send("It is working!");
 });
 // signin endpoint
-app.post('/signin', [
-  check('email').isEmail().normalizeEmail(),
-  check('password').isLength({min:3}).escape()
-],(req, res) => {
-	signin.handleSignIn(req, res, knex, bcrypt, validationResult);
-});
+app.post(
+  "/signin",
+  [
+    check("email").isEmail().normalizeEmail(),
+    check("password").isLength({ min: 3 }).escape(),
+  ],
+  (req, res) => {
+    signin.handleSignIn(req, res, knex, bcrypt, validationResult);
+  }
+);
 // register endpoint
-app.post('/register', [
-  check('name').isLength({min:2}).trim().escape(),
-  check('email').isEmail().normalizeEmail(),
-  check('password').isLength({min:3}).escape()
-], (req, res) => {
-	register.handleRegister(req, res, knex, bcrypt, validationResult);
-});
+app.post(
+  "/register",
+  [
+    check("name").isLength({ min: 2 }).trim().escape(),
+    check("email").isEmail().normalizeEmail(),
+    check("password").isLength({ min: 3 }).escape(),
+  ],
+  (req, res) => {
+    register.handleRegister(req, res, knex, bcrypt, validationResult);
+  }
+);
 // get user profile
-app.get('/profile/:id', (req, res) => {
-	profile.handleProfile(req, res, knex);
+app.get("/profile/:id", (req, res) => {
+  profile.handleProfile(req, res, knex);
 });
 // api request
-app.post('/apiRequest', (req, res) => {
+app.post("/apiRequest", (req, res) => {
   image.apiRequest(req, res);
-})
+});
 // update entries
-app.put('/image', (req, res) => {
-	image.handleImage(req, res, knex);
+app.put("/image", (req, res) => {
+  image.handleImage(req, res, knex);
 });
 
 app.listen(process.env.PORT || 3000);
