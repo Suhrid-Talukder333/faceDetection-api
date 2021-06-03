@@ -21,41 +21,42 @@ server.get("/", (req, res) => {
 
 server.post("/register", (req, res) => {
   const { email, name, password } = req.body;
-  const hash = bcrypt.hashSync(password);
+  // const hash = bcrypt.hashSync(password);
 
-  database
-    .transaction((trx) => {
-      trx
-        .insert({
-          hash: hash,
-          email: email,
-        })
-        .into("login")
-        .returning("email")
-        .then((loginMail) => {
-          return trx("users")
-            .returning("*")
-            .insert({
-              email: loginMail[0],
-              name: name,
-              joined: new Date(),
-            })
-            .then((data) =>
-              res.json({
-                status: "success",
-                name: data[0].name,
-                points: data[0].entries,
-              })
-            );
-        })
-        .then(trx.commit)
-        .catch(trx.rollback);
-    })
-    .catch((err) =>
-      res.json({
-        status: "error",
-      })
-    );
+  // database
+  //   .transaction((trx) => {
+  //     trx
+  //       .insert({
+  //         hash: hash,
+  //         email: email,
+  //       })
+  //       .into("login")
+  //       .returning("email")
+  //       .then((loginMail) => {
+  //         return trx("users")
+  //           .returning("*")
+  //           .insert({
+  //             email: loginMail[0],
+  //             name: name,
+  //             joined: new Date(),
+  //           })
+  //           .then((data) =>
+  //             res.json({
+  //               status: "success",
+  //               name: data[0].name,
+  //               points: data[0].entries,
+  //             })
+  //           );
+  //       })
+  //       .then(trx.commit)
+  //       .catch(trx.rollback);
+  //   })
+  //   .catch((err) =>
+  //     res.json({
+  //       status: "error",
+  //     })
+  //   );
+  res.send(email, name, password);
 });
 
 server.post("/signin", (req, res) => {
