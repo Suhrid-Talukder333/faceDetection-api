@@ -17,7 +17,7 @@ const knex = require("knex")({
 
 const app = express();
 // middleware
-app.header("Access-Control-Allow-Origin", "*");
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
